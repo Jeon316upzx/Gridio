@@ -1,9 +1,20 @@
 import requests
 from bs4 import BeautifulSoup
 import sqlite3
+from sqlite3 import Error
 
 
-conn = sqlite3.connect('Nord.sqlite3', check_same_thread=False)
+def create_connection(db_file='Elering.sqlite3'):
+    """ 
+      create a database connection to the SQLite database
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except Error as e:
+        print(e)
+
+    return conn
 
 
 def hourly_prices_one_day_ahead_Estonia(url):
@@ -22,6 +33,7 @@ def hourly_prices_one_day_ahead_Estonia(url):
     table = soup.findAll()
 
     for row in table:
+        conn = create_connection()
         curs = conn.cursor()
         curs.execute("INSERT INTO nordtable".format(row))
         conn.commit()
